@@ -3,7 +3,6 @@ import "./App.scss";
 import { GrEdit } from "react-icons/gr";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -11,7 +10,7 @@ function App() {
   const [formName, setFormName] = useState("");
   const [formUsername, setFormUsername] = useState("");
   const [formEmail, setFormEmail] = useState("");
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const loadUsers = () => {
     (async () => {
       const response = await fetch(backendUrl);
