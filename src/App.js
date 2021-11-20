@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
 import "./App.scss";
+import { useState, useEffect } from "react";
 import { GrEdit } from "react-icons/gr";
 import { RiDeleteBin6Line } from "react-icons/ri";
-
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -10,25 +9,26 @@ function App() {
   const [formName, setFormName] = useState("");
   const [formUsername, setFormUsername] = useState("");
   const [formEmail, setFormEmail] = useState("");
+
+  // const backendUrl = "http://localhost:3022";
+  // const backendUrl = "https://manage-user-app-backend.herokuapp.com/";
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
-  const loadUsers = () => {
-    (async () => {
-      const response = await fetch(backendUrl);
-      const users = await response.json();
-      users.forEach((user) => (user.isEditingEmail = false));
-      setUsers(users);
-    })();
+
+  const loadUsers = async () => {
+    const response = await fetch(backendUrl);
+    const users = await response.json();
+    users.forEach((user) => (user.isEditingEmail = false));
+    // console.log("2", users);
+    setUsers(users);
   };
 
   useEffect(() => {
     loadUsers();
   }, []);
 
-  const handleDeleteButton = (user) => {
-    (async () => {
-      await fetch(`${backendUrl}/deleteuser/${user._id}`, { method: "DELETE" });
-      loadUsers();
-    })();
+  const handleDeleteButton = async (user) => {
+    await fetch(`${backendUrl}/deleteuser/${user._id}`, { method: "DELETE" });
+    loadUsers();
   };
 
   const handleEditButton = (user) => {
@@ -41,17 +41,20 @@ function App() {
     setUsers([...users]);
   };
 
-  const handleEmailSave = (user) => {
-    (async () => {
-      await fetch(`${backendUrl}/edituseremail/${user._id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: user.email,
-        }),
-      });
-      loadUsers();
-    })();
+  const handleEmailSave = async (user) => {
+    await fetch(`${backendUrl}/edituser/${user._id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: user.email,
+      }),
+    });
+    loadUsers();
+  };
+
+  const handleEditCancelButton = (user) => {
+    // user.isEditingEmail = !user.isEditingEmail;
+    loadUsers();
   };
 
   const clearForm = () => {
@@ -101,10 +104,10 @@ function App() {
       loadUsers();
     })();
   };
-console.log(users.length)
   return (
     <div className="App">
-      <h1>User Management App</h1>
+      <h1>User Management APP</h1>
+      {/* <div>[{process.env.REACT_APP_BACKEND_URL}]</div> */}
       <div className="addUserArea">
         <div className="topInfoRow">
           <button onClick={handleToggleAddUserArea}>Add User</button>
@@ -158,19 +161,18 @@ console.log(users.length)
           return (
             <div key={index} className="userCard">
               <div className="row">
-                <div className="label">Full Name: </div>
+                <div className="label">Full Name:</div>
                 <div className="data">{user.name}</div>
               </div>
               <div className="row">
-                <div className="label">User Name: </div>
+                <div className="label">User Name:</div>
                 <div className="data">{user.username}</div>
               </div>
               <div className="row">
-                <div className="label">E-Mail: </div>
-                {!user.isEditingEmail && (
+                <div className="label">E-Mail:</div>
+                {!user.isEditingEmail ? (
                   <div className="data">{user.email}</div>
-                )}
-                {user.isEditingEmail && (
+                ) : (
                   <div className="data editing">
                     <input
                       type="text"
@@ -178,7 +180,7 @@ console.log(users.length)
                       value={user.email}
                     />
                     <button onClick={() => handleEmailSave(user)}>Save</button>
-                    <button onClick={() => handleEditButton(user)}>
+                    <button onClick={() => handleEditCancelButton(user)}>
                       Cancel
                     </button>
                   </div>
